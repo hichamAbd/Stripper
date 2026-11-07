@@ -1,0 +1,13 @@
+{
+  "name": "stripper",
+  "version": "1.0.0",
+  "description": "Remove GPS location and every other hidden tag from photos, entirely in the browser.",
+  "private": true,
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\"",
+    "test:e2e": "node tests/e2e.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

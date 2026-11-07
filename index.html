@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- No network access at all: scripts and styles only from this site, and
+       connect-src 'none' means the page cannot send your photos anywhere. -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Stripper — remove location &amp; hidden data from photos</title>
+  <meta name="description" content="Remove GPS location, camera details and every other hidden tag from your photos before you share them. Runs entirely in your browser; nothing is uploaded.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/metadata.js" defer></script>
+  <script src="js/zip.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-row">
+      <a class="brand" href="./" aria-label="Stripper home">
+        <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="8" class="logo-bg"/>
+          <path d="M16 6.5c-3.9 0-7 3-7 6.8 0 4.9 7 12.2 7 12.2s7-7.3 7-12.2c0-3.8-3.1-6.8-7-6.8z" class="logo-pin"/>
+          <circle cx="16" cy="13.3" r="2.3" class="logo-dot"/>
+          <path d="M8.5 24.5 23.5 7.5" class="logo-cut-halo"/>
+          <path d="M8.5 24.5 23.5 7.5" class="logo-cut"/>
+        </svg>
+        <span>Stripper</span>
+      </a>
+      <span class="header-note">Nothing leaves your device</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>Share the photo, <span class="nowrap">not your location.</span></h1>
+      <p class="lede">
+        Photos quietly carry the GPS coordinates of where they were taken, the exact time,
+        your phone’s model and sometimes its serial number. Stripper removes all of it and
+        gives the file a brand-new fingerprint, so the copy you post can’t be matched to your original.
+      </p>
+      <ul class="trust">
+        <li>Runs entirely in your browser</li>
+        <li>Photos are never uploaded</li>
+        <li>No accounts, cookies or tracking</li>
+      </ul>
+    </section>
+
+    <section class="drop" aria-label="Add photos">
+      <input type="file" id="file-input" accept="image/*" multiple hidden>
+      <div class="dropzone" id="dropzone">
+        <svg class="drop-icon" viewBox="0 0 48 48" aria-hidden="true">
+          <rect x="6" y="10" width="36" height="28" rx="5"/>
+          <circle cx="17" cy="20" r="3"/>
+          <path d="m9 34 9.5-9 6.5 6 5-4.5L39 34"/>
+        </svg>
+        <p class="drop-title"><span class="for-pointer">Drop photos here</span><span class="for-touch">Add your photos</span></p>
+        <p class="drop-sub for-pointer">or</p>
+        <button type="button" class="btn primary big">Choose photos</button>
+        <p class="drop-hint">JPEG, PNG, WebP, HEIC (in Safari) · as many as you like · you can also paste</p>
+      </div>
+      <p class="notice" id="notice" role="alert" hidden></p>
+    </section>
+
+    <details class="options">
+      <summary>Options</summary>
+      <div class="options-grid">
+        <label class="field">
+          <span>Save as</span>
+          <select id="opt-format">
+            <option value="auto">Same type as original</option>
+            <option value="jpeg">JPEG (best for photos)</option>
+            <option value="png">PNG (lossless, larger)</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Quality <output id="opt-quality-out" for="opt-quality">92</output></span>
+          <input type="range" id="opt-quality" min="60" max="100" step="1" value="92">
+        </label>
+        <label class="field">
+          <span>Max size</span>
+          <select id="opt-size">
+            <option value="0">Original size</option>
+            <option value="4096">4096 px</option>
+            <option value="2560">2560 px</option>
+            <option value="1920">1920 px</option>
+            <option value="1280">1280 px (good for reviews)</option>
+          </select>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="opt-rename" checked>
+          <span>Give files a random name <small>Names like IMG_20261107_183012.jpg reveal when a photo was taken.</small></span>
+        </label>
+      </div>
+      <p class="muted small">Changing an option re-cleans the photos already in the list.</p>
+    </details>
+
+    <section class="results" id="results" aria-live="polite"></section>
+
+    <div class="bulk" id="bulk" hidden>
+      <button type="button" class="btn primary" id="download-all" hidden>Download all (.zip)</button>
+      <button type="button" class="btn ghost" id="clear-all">Clear list</button>
+    </div>
+
+    <section class="explain">
+      <h2>What gets removed</h2>
+      <div class="grid">
+        <div class="tile is-danger">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+          <h3>Location</h3>
+          <p>GPS coordinates and altitude, plus any city, region or country written into the file.</p>
+        </div>
+        <div class="tile">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+          <h3>Date &amp; time</h3>
+          <p>When the photo was taken, edited and saved, including your time zone.</p>
+        </div>
+        <div class="tile">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>
+          <h3>Your device</h3>
+          <p>Phone or camera model, lens, serial numbers, owner name and maker-specific data.</p>
+        </div>
+        <div class="tile">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="13" height="10" rx="2"/><rect x="8" y="9" width="13" height="10" rx="2"/></svg>
+          <h3>Hidden extras</h3>
+          <p>Embedded thumbnails (which can show the photo before you cropped it), depth maps and motion-photo video.</p>
+        </div>
+        <div class="tile">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg>
+          <h3>Edits &amp; notes</h3>
+          <p>Editing software, edit history, comments, captions, keywords, author and copyright.</p>
+        </div>
+        <div class="tile">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3.5 8 20.5M16 3.5l-2 17M4.5 9h15M3.5 15h15"/></svg>
+          <h3>File fingerprint</h3>
+          <p>Every byte is rebuilt and a few pixels shift invisibly, so the checksum (SHA-256, MD5…) is new every time.</p>
+        </div>
+      </div>
+
+      <h2>How it works</h2>
+      <ol class="steps">
+        <li><strong>Inspect.</strong> Stripper reads the file and shows you exactly what it gives away.</li>
+        <li><strong>Rebuild.</strong> It keeps only the visible pixels, the right way up, and nudges a tiny random patch by 1/255. You can’t see it, but every copy is unique.</li>
+        <li><strong>Verify.</strong> The new file is scanned again to confirm nothing survived, and you can compare the before and after fingerprints.</li>
+      </ol>
+
+      <h2>Good to know</h2>
+      <ul class="caveats">
+        <li><strong>The picture itself can still give you away.</strong> A street sign, the view from your window, a reflection or a recognisable landmark says more than any tag. Crop before you post.</li>
+        <li><strong>Reverse image search still works.</strong> A new checksum stops exact-file matching, but services like Google Lens compare what a picture <em>looks like</em>. If you posted the same photo under your name somewhere else, it can still be found.</li>
+        <li><strong>Most big sites strip GPS on upload, but not all do</strong>, and you can’t see what they keep for themselves. Cleaning first means they never receive it.</li>
+        <li><strong>Want to check it’s really offline?</strong> Load this page, switch on airplane mode and use it. It keeps working, because nothing is sent anywhere.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Stripper is open source. Your photos are processed only in this browser tab and are gone when you close it.
+        <a href="https://github.com/hichamAbd/stripper" rel="noopener noreferrer">Source code</a></p>
+    </div>
+  </footer>
+</body>
+</html>
