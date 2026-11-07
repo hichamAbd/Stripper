@@ -20,7 +20,10 @@ const Meta = require('../js/metadata.js');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const fixtures = path.join(root, 'tests', 'fixtures');
 
-const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml' };
+const TYPES = {
+  '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml',
+  '.png': 'image/png', '.webmanifest': 'application/manifest+json'
+};
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://x');
   const file = path.join(root, url.pathname === '/' ? 'index.html' : decodeURIComponent(url.pathname));
@@ -59,6 +62,17 @@ try {
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
 
   await page.goto(origin + '/');
+
+  // The browser must accept the manifest (home-screen name and icons) despite the strict CSP
+  const cdp = await context.newCDPSession(page);
+  const manifest = await cdp.send('Page.getAppManifest');
+  assert.ok(manifest.url.endsWith('/manifest.webmanifest'), 'manifest not found');
+  assert.deepEqual(manifest.errors, [], 'manifest errors');
+  for (const icon of JSON.parse(manifest.data).icons) {
+    const res = await page.request.get(new URL(icon.src, manifest.url).href);
+    assert.equal(res.headers()['content-type'], 'image/png', icon.src);
+  }
+  console.log('  ✓ manifest and home-screen icons load');
 
   const names = ['gps.jpg', 'rotated.jpg', 'text.png', 'exif.webp', 'plain.jpg'];
   await page.setInputFiles('#file-input', names.map((n) => path.join(fixtures, n)));

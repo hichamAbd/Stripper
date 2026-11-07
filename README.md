@@ -38,7 +38,7 @@ The only thing left in a cleaned JPEG/WebP is a standard sRGB colour profile wri
 
 ## Deploying
 
-It's a static site with no build step: `index.html`, `css/`, `js/`, `favicon.svg`.
+It's a static site with no build step: `index.html`, `manifest.webmanifest`, `css/`, `js/`, `icons/`, `favicon.svg`.
 
 **GitHub Pages:** in the repository, go to *Settings → Pages → Build and deployment*, choose *Deploy from a branch*, select the branch and `/ (root)`, and save. The site appears at `https://<user>.github.io/Stripper/` after a minute.
 
@@ -53,6 +53,7 @@ npm test            # unit tests (Node 20+)
 npm run test:e2e    # real-browser test; needs Playwright:
                     #   npm i --no-save playwright && npx playwright install chromium
 python3 tests/fixtures/make_fixtures.py   # regenerate test images (needs Pillow)
+node scripts/make-icons.cjs                # re-render icons/*.png from icons/*.svg (needs Playwright)
 ```
 
 The end-to-end test serves the site locally, uploads the fixtures, downloads every cleaned file and checks it: no metadata left, new checksum, correct orientation, two runs on the same photo give different checksums, and no network requests leave the page.
@@ -65,5 +66,7 @@ css/styles.css      styles (light and dark)
 js/metadata.js      metadata scanner and container sanitizer (pure functions)
 js/zip.js           tiny zip writer for "Download all"
 js/app.js           UI and the re-encoding pipeline
+icons/              home-screen icons (SVG sources and rendered PNGs)
+manifest.webmanifest  app name and icons for Android / "Add to Home Screen"
 tests/              unit tests, browser test, fixtures
 ```

@@ -6,12 +6,19 @@
   <!-- No network access at all: scripts and styles only from this site, and
        connect-src 'none' means the page cannot send your photos anywhere. -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+        content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; manifest-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
   <meta name="referrer" content="no-referrer">
   <title>Stripper — remove location &amp; hidden data from photos</title>
   <meta name="description" content="Remove GPS location, camera details and every other hidden tag from your photos before you share them. Runs entirely in your browser; nothing is uploaded.">
   <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f6f5f1" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#111214" media="(prefers-color-scheme: dark)">
+  <!-- Icons: SVG for browser tabs, PNGs for home screens (phones ignore SVG there). -->
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" sizes="180x180">
+  <meta name="apple-mobile-web-app-title" content="Stripper">
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/metadata.js" defer></script>
   <script src="js/zip.js" defer></script>
