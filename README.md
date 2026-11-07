@@ -40,7 +40,7 @@ The only thing left in a cleaned JPEG/WebP is a standard sRGB colour profile wri
 
 It's a static site with no build step: `index.html`, `css/`, `js/`, `favicon.svg`.
 
-**GitHub Pages:** in the repository, go to *Settings → Pages → Build and deployment*, choose *Deploy from a branch*, select the branch and `/ (root)`, and save. The site appears at `https://<user>.github.io/stripper/` after a minute.
+**GitHub Pages:** in the repository, go to *Settings → Pages → Build and deployment*, choose *Deploy from a branch*, select the branch and `/ (root)`, and save. The site appears at `https://<user>.github.io/Stripper/` after a minute.
 
 Any other static host works too (Netlify, Cloudflare Pages, your own server). You can also open `index.html` straight from disk.
 
